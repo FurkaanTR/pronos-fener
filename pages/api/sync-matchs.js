@@ -10,7 +10,7 @@ const FENER_ID = 611;
 export default async function handler(req, res) {
   try {
     // Saison en cours ; ajuste si besoin. On prend les 20 prochains matchs.
-    const url = `https://v3.football.api-sports.io/fixtures?team=${FENER_ID}&next=20`;
+    const url = `https://v3.football.api-sports.io/fixtures?team=${FENER_ID}&season=2025&next=20`;
     const r = await fetch(url, {
       headers: { "x-apisports-key": process.env.API_FOOTBALL_KEY },
     });
