@@ -2,14 +2,33 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Joueurs() {
+  const [admin, setAdmin] = useState(false);
+  const [code, setCode] = useState("");
+  const [erreurCode, setErreurCode] = useState(null);
+
   const [joueurs, setJoueurs] = useState([]);
   const [nom, setNom] = useState("");
   const [statut, setStatut] = useState(null);
 
+  useEffect(() => {
+    if (sessionStorage.getItem("admin") === "1") setAdmin(true);
+  }, []);
+
   const charger = () =>
     supabase.from("joueurs").select("*").order("prenom").then(({ data }) => setJoueurs(data || []));
 
-  useEffect(() => { charger(); }, []);
+  useEffect(() => { if (admin) charger(); }, [admin]);
+
+  const verifierAdmin = async () => {
+    setErreurCode(null);
+    const r = await fetch("/api/verifier-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    if (r.ok) { setAdmin(true); sessionStorage.setItem("admin", "1"); }
+    else setErreurCode("Code incorrect.");
+  };
 
   const ajouter = async () => {
     if (!nom.trim()) return;
@@ -25,6 +44,26 @@ export default function Joueurs() {
     if (error) setStatut("Erreur : " + error.message);
     else { setStatut(`${prenom} retiré.`); charger(); }
   };
+
+  // Écran code admin
+  if (!admin) {
+    return (
+      <div style={S.page}>
+        <h1 style={S.titre}>JOUEURS</h1>
+        <a href="/" style={S.lien}>← retour</a>
+        <div style={S.carte}>
+          <p style={{ color: "#9fb0d8", marginTop: 0 }}>Page réservée. Entre le code admin.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input style={S.input} type="password" value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && verifierAdmin()} autoFocus />
+            <button style={S.btn} onClick={verifierAdmin}>Entrer</button>
+          </div>
+          {erreurCode && <p style={{ color: "#ff6b6b", marginTop: 8 }}>{erreurCode}</p>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={S.page}>
