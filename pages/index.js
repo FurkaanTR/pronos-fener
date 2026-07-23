@@ -9,11 +9,13 @@ export default function Home() {
   const [joueurs, setJoueurs] = useState([]);
   const [moi, setMoi] = useState(null);
   const [effectif, setEffectif] = useState([]);
+  const [matchs, setMatchs] = useState([]);
 
   useEffect(() => {
     if (!entre) return;
     supabase.from("joueurs").select("id, prenom").then(({ data }) => setJoueurs(data || []));
-    supabase.from("effectif").select("nom, poste").then(({ data }) => setEffectif(data || []));
+    supabase.from("effectif").select("nom, poste").order("poste").then(({ data }) => setEffectif(data || []));
+    supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
   }, [entre]);
 
   const verifier = async () => {
@@ -27,27 +29,19 @@ export default function Home() {
     else setMsgErreur("Mot de passe incorrect.");
   };
 
-  // Écran 0 : mot de passe
   if (!entre) {
     return (
       <div style={S.page}>
         <h1 style={S.titre}>PRONOS FENER</h1>
         <p style={S.sous}>Mot de passe</p>
-        <input
-          type="password"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && verifier()}
-          style={S.input}
-          autoFocus
-        />
+        <input type="password" value={code} onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && verifier()} style={S.input} autoFocus />
         <button style={S.btn} onClick={verifier}>Entrer</button>
         {msgErreur && <p style={S.err}>{msgErreur}</p>}
       </div>
     );
   }
 
-  // Écran 1 : choisir son joueur
   if (!moi) {
     return (
       <div style={S.page}>
@@ -62,17 +56,82 @@ export default function Home() {
     );
   }
 
-  // Écran 2 : connecté
   return (
     <div style={S.page}>
       <h1 style={S.titre}>PRONOS FENER</h1>
       <p style={S.sous}>
-        Salut {moi.prenom} 👋{" "}
-        <button style={S.lien} onClick={() => setMoi(null)}>(changer)</button>
+        Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => setMoi(null)}>(changer)</button>
       </p>
-      <p style={{ color: "#9fb0d8" }}>
-        Connecté. Effectif chargé : {effectif.length} joueurs. La suite (pronos) arrive à la prochaine brique.
-      </p>
+      {matchs.length === 0 && <p style={{ color: "#9fb0d8" }}>Aucun match pour l'instant.</p>}
+      {matchs.map((m) => (
+        <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />
+      ))}
+    </div>
+  );
+}
+
+function MatchCard({ match, moi, effectif }) {
+  const fenerDom = match.domicile === "Fenerbahçe";
+  const [dom, setDom] = useState("");
+  const [ext, setExt] = useState("");
+  const [buteurs, setButeurs] = useState([]);
+  const [statut, setStatut] = useState(null);
+
+  // Charger un prono existant
+  useEffect(() => {
+    supabase.from("pronos_match").select("*")
+      .eq("joueur_id", moi.id).eq("match_id", match.id).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setDom(String(data.score_domicile));
+          setExt(String(data.score_exterieur));
+          setButeurs(data.buteurs || []);
+          setStatut("Prono déjà enregistré ✔");
+        }
+      });
+  }, []);
+
+  const butsFener = parseInt(fenerDom ? dom : ext, 10) || 0;
+
+  const setBut = (i, val) => setButeurs((b) => { const c = [...b]; c[i] = val; return c; });
+
+  const enregistrer = async () => {
+    setStatut("Enregistrement…");
+    const { error } = await supabase.from("pronos_match").upsert({
+      joueur_id: moi.id,
+      match_id: match.id,
+      score_domicile: parseInt(dom, 10),
+      score_exterieur: parseInt(ext, 10),
+      buteurs: buteurs.slice(0, butsFener).filter(Boolean),
+    }, { onConflict: "joueur_id,match_id" });
+    setStatut(error ? "Erreur : " + error.message : "Prono enregistré ✔");
+  };
+
+  return (
+    <div style={S.carte}>
+      <div style={S.matchTitre}>
+        <span style={fenerDom ? S.fener : undefined}>{match.domicile}</span>
+        <span style={S.vs}> vs </span>
+        <span style={!fenerDom ? S.fener : undefined}>{match.exterieur}</span>
+        <span style={S.compet}>{match.competition}</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <input style={S.mini} inputMode="numeric" placeholder={match.domicile.slice(0,3)}
+          value={dom} onChange={(e) => setDom(e.target.value.replace(/\D/g, ""))} />
+        <span style={S.vs}>–</span>
+        <input style={S.mini} inputMode="numeric" placeholder={match.exterieur.slice(0,3)}
+          value={ext} onChange={(e) => setExt(e.target.value.replace(/\D/g, ""))} />
+      </div>
+      {Array.from({ length: butsFener }).map((_, i) => (
+        <select key={i} style={S.select} value={buteurs[i] || ""} onChange={(e) => setBut(i, e.target.value)}>
+          <option value="">Buteur {i + 1}…</option>
+          {effectif.map((p) => (
+            <option key={p.nom} value={p.nom}>{p.nom} ({p.poste[0]})</option>
+          ))}
+        </select>
+      ))}
+      <button style={S.btnValider} onClick={enregistrer}>Enregistrer mon prono</button>
+      {statut && <p style={{ color: "#9fb0d8", marginTop: 8 }}>{statut}</p>}
     </div>
   );
 }
@@ -83,6 +142,13 @@ const S = {
   sous: { color: "#cdd7f0", fontSize: 18 },
   input: { display: "block", padding: "12px", fontSize: 16, borderRadius: 8, border: "1px solid #2a3d6b", background: "#0b1631", color: "#fff", marginBottom: 12, width: 220 },
   btn: { padding: "14px 28px", background: "#ffed00", color: "#0d1b3e", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: "pointer" },
+  btnValider: { marginTop: 10, padding: "12px 20px", background: "#1f7a4d", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" },
   lien: { background: "none", border: "none", color: "#9fb0d8", textDecoration: "underline", cursor: "pointer", fontSize: 14 },
   err: { color: "#ff6b6b", marginTop: 12 },
-};
+  carte: { background: "#182a52", border: "1px solid #263a6a", borderRadius: 16, padding: 18, marginTop: 16 },
+  matchTitre: { fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" },
+  fener: { color: "#ffed00" },
+  vs: { color: "#7b8cba", fontWeight: 400 },
+  compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
+  mini: { width: 52, padding: "8px 6px", textAlign: "center", background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 16 },
+  select: { width: "100%", padding: "8px",
