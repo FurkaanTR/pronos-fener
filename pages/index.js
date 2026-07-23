@@ -8,6 +8,10 @@ export default function Home() {
   const [msgErreur, setMsgErreur] = useState(null);
   const [joueurs, setJoueurs] = useState([]);
   const [moi, setMoi] = useState(null);
+  useEffect(() => {
+    const sauv = sessionStorage.getItem("moi");
+    if (sauv) setMoi(JSON.parse(sauv));
+  }, []);
   const [effectif, setEffectif] = useState([]);
   const [matchs, setMatchs] = useState([]);
 
