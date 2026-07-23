@@ -36,7 +36,7 @@ export default function Home() {
   if (!entre) {
     return (
       <div style={S.page}>
-      <h1 style={S.titre}>Devine ton score</h1>
+      <h1 style={S.titre}>DEVINE TON SCORE</h1>
        <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Mot de passe</p>
         <input type="password" value={code} onChange={(e) => setCode(e.target.value)}
@@ -50,7 +50,7 @@ export default function Home() {
   if (!moi) {
     return (
       <div style={S.page}>
-        <h1 style={S.titre}>Devine ton score</h1>
+        <h1 style={S.titre}>DEVINE TON SCORE</h1>
        <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Qui es-tu ?</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -64,7 +64,7 @@ export default function Home() {
 
   return (
     <div style={S.page}>
-<h1 style={S.titre}>Devine ton score</h1>
+<h1 style={S.titre}>DEVINE TON SCORE</h1>
      <p style={S.marque}>FENER1907</p>
       <p style={S.sous}>
         Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => { setMoi(null); sessionStorage.removeItem("moi"); }}>(changer)</button>
