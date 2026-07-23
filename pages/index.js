@@ -61,6 +61,11 @@ export default function Home() {
       <p style={S.sous}>
         Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => setMoi(null)}>(changer)</button>
       </p>
+<div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        <a href="/classement" style={S.lien}>🏆 Classement</a>
+        <a href="/saison" style={S.lien}>📅 Pronos de saison</a>
+        <a href="/resultat" style={S.lien}>✅ Saisir un résultat</a>
+      </div>
       {matchs.length === 0 && <p style={{ color: "#9fb0d8" }}>Aucun match pour l'instant.</p>}
       {matchs.map((m) => (
         <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />
