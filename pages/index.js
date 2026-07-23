@@ -119,12 +119,20 @@ function MatchCard({ match, moi, effectif }) {
 
   return (
     <div style={S.carte}>
-      <div style={S.matchTitre}>
+     <div style={S.matchTitre}>
         <span style={fenerDom ? S.fener : undefined}>{match.domicile}</span>
         <span style={S.vs}> vs </span>
         <span style={!fenerDom ? S.fener : undefined}>{match.exterieur}</span>
         <span style={S.compet}>{match.competition}</span>
       </div>
+      {match.coup_denvoi && (
+        <div style={S.dateMatch}>
+          {new Date(match.coup_denvoi).toLocaleString("fr-FR", {
+            weekday: "long", day: "numeric", month: "long",
+            hour: "2-digit", minute: "2-digit",
+          })}
+        </div>
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <input style={S.mini} inputMode="numeric" placeholder={match.domicile.slice(0,3)}
           value={dom} onChange={(e) => setDom(e.target.value.replace(/\D/g, ""))} />
@@ -157,6 +165,7 @@ const S = {
   err: { color: "#ff6b6b", marginTop: 12 },
   carte: { background: "#182a52", border: "1px solid #263a6a", borderRadius: 16, padding: 18, marginTop: 16 },
   matchTitre: { fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" },
+  dateMatch: { color: "#9fb0d8", fontSize: 13, marginBottom: 12, marginTop: -6 },
   fener: { color: "#ffed00" },
   vs: { color: "#7b8cba", fontWeight: 400 },
   compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
