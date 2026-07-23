@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       headers: { "x-apisports-key": process.env.API_FOOTBALL_KEY },
     });
     const data = await r.json();
+    return res.status(200).json({ debug: data });
     const fixtures = data.response || [];
 
     let ajoutes = 0;
