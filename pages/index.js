@@ -70,6 +70,7 @@ export default function Home() {
         <a href="/classement" style={S.lien}>🏆 Classement</a>
         <a href="/saison" style={S.lien}>📅 Pronos de saison</a>
         <a href="/resultat" style={S.lien}>✅ Saisir un résultat</a>
+        <a href="/ajout-match" style={S.lien}>➕ Ajouter un match</a>
       </div>
       {matchs.length === 0 && <p style={{ color: "#9fb0d8" }}>Aucun match pour l'instant.</p>}
       {matchs.map((m) => (
