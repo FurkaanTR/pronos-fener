@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabaseClient";
 
 export default function Home() {
   const [entre, setEntre] = useState(false);
+  useEffect(() => { if (sessionStorage.getItem("entre") === "1") setEntre(true); }, []);
   const [code, setCode] = useState("");
   const [msgErreur, setMsgErreur] = useState(null);
   const [joueurs, setJoueurs] = useState([]);
@@ -24,7 +25,7 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     });
-    if (r.ok) setEntre(true);
+    if (r.ok) { setEntre(true); sessionStorage.setItem("entre", "1"); }
     else setMsgErreur("Mot de passe incorrect.");
   };
 
@@ -145,7 +146,7 @@ const S = {
   input: { display: "block", padding: "12px", fontSize: 16, borderRadius: 8, border: "1px solid #2a3d6b", background: "#0b1631", color: "#fff", marginBottom: 12, width: 220 },
   btn: { padding: "14px 28px", background: "#ffed00", color: "#0d1b3e", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: "pointer" },
   btnValider: { marginTop: 10, padding: "12px 20px", background: "#1f7a4d", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" },
-  lien: { background: "none", border: "none", color: "#9fb0d8", textDecoration: "underline", cursor: "pointer", fontSize: 14 },
+ lien: { display: "inline-block", padding: "10px 16px", background: "#182a52", border: "1px solid #2a3d6b", borderRadius: 10, color: "#ffed00", textDecoration: "none", fontWeight: 600, fontSize: 14 },
   err: { color: "#ff6b6b", marginTop: 12 },
   carte: { background: "#182a52", border: "1px solid #263a6a", borderRadius: 16, padding: 18, marginTop: 16 },
   matchTitre: { fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" },
