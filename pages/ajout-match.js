@@ -32,7 +32,12 @@ export default function AjoutMatch() {
         <label style={S.lab}>Extérieur</label>
         <input style={S.input} value={ext} onChange={(e) => setExt(e.target.value)} placeholder="Ex. Galatasaray" />
         <label style={S.lab}>Compétition</label>
-        <input style={S.input} value={compet} onChange={(e) => setCompet(e.target.value)} />
+       <select style={S.input} value={compet} onChange={(e) => setCompet(e.target.value)}>
+          <option value="Süper Lig">Süper Lig</option>
+          <option value="Ligue des Champions">Ligue des Champions</option>
+          <option value="Coupe de Turquie">Coupe de Turquie</option>
+          <option value="Autres">Autres</option>
+        </select>
         <label style={S.lab}>Date et heure du coup d'envoi</label>
         <input style={S.input} type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
         <button style={S.btn} onClick={ajouter}>Ajouter le match</button>
