@@ -5,7 +5,6 @@ export default function Home() {
   const [entre, setEntre] = useState(false);
   const [code, setCode] = useState("");
   const [msgErreur, setMsgErreur] = useState(null);
-
   const [joueurs, setJoueurs] = useState([]);
   const [moi, setMoi] = useState(null);
   const [effectif, setEffectif] = useState([]);
@@ -77,7 +76,6 @@ function MatchCard({ match, moi, effectif }) {
   const [buteurs, setButeurs] = useState([]);
   const [statut, setStatut] = useState(null);
 
-  // Charger un prono existant
   useEffect(() => {
     supabase.from("pronos_match").select("*")
       .eq("joueur_id", moi.id).eq("match_id", match.id).maybeSingle()
@@ -92,7 +90,6 @@ function MatchCard({ match, moi, effectif }) {
   }, []);
 
   const butsFener = parseInt(fenerDom ? dom : ext, 10) || 0;
-
   const setBut = (i, val) => setButeurs((b) => { const c = [...b]; c[i] = val; return c; });
 
   const enregistrer = async () => {
@@ -151,4 +148,5 @@ const S = {
   vs: { color: "#7b8cba", fontWeight: 400 },
   compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
   mini: { width: 52, padding: "8px 6px", textAlign: "center", background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 16 },
-  select: { width: "100%", padding: "8px",
+  select: { width: "100%", padding: "8px", marginBottom: 6, background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 14 },
+};
