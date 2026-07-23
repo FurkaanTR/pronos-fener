@@ -70,7 +70,7 @@ function ResCard({ match, effectif }) {
 const S = {
   page: { fontFamily: "sans-serif", padding: 24, background: "#0d1b3e", color: "#eef2ff", minHeight: "100vh" },
   titre: { color: "#ffed00", fontStyle: "italic", letterSpacing: "0.1em" },
-  lien: { color: "#9fb0d8", display: "inline-block", marginBottom: 16 },
+  lien: { display: "inline-block", padding: "10px 16px", background: "#182a52", border: "1px solid #2a3d6b", borderRadius: 10, color: "#ffed00", textDecoration: "none", fontWeight: 600, fontSize: 14, marginBottom: 16 },
   carte: { background: "#182a52", border: "1px solid #263a6a", borderRadius: 16, padding: 18, marginTop: 16 },
   mt: { fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 },
   f: { color: "#ffed00" },
