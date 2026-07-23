@@ -37,7 +37,7 @@ export default function Home() {
     return (
       <div style={S.page}>
       <h1 style={S.titre}>Devine ton score</h1>
-        <p style={S.marque}>Fener</p>
+       <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Mot de passe</p>
         <input type="password" value={code} onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && verifier()} style={S.input} autoFocus />
@@ -51,7 +51,7 @@ export default function Home() {
     return (
       <div style={S.page}>
         <h1 style={S.titre}>Devine ton score</h1>
-        <p style={S.marque}>Fener</p>
+       <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Qui es-tu ?</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {joueurs.map((j) => (
@@ -65,7 +65,7 @@ export default function Home() {
   return (
     <div style={S.page}>
 <h1 style={S.titre}>Devine ton score</h1>
-        <p style={S.marque}>Fener</p>
+     <p style={S.marque}>FENER1907</p>
       <p style={S.sous}>
         Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => { setMoi(null); sessionStorage.removeItem("moi"); }}>(changer)</button>
       </p>
@@ -160,7 +160,7 @@ function MatchCard({ match, moi, effectif }) {
 const S = {
   page: { fontFamily: "sans-serif", padding: 24, background: "#0d1b3e", color: "#eef2ff", minHeight: "100vh" },
  titre: { color: "#ffed00", fontStyle: "italic", letterSpacing: "0.1em", textAlign: "center", marginBottom: 0 },
-  marque: { color: "#9fb0d8", textAlign: "center", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase", fontSize: 13, marginTop: 4 },
+ marque: { color: "#ffed00", textAlign: "center", fontWeight: 800, letterSpacing: "0.2em", fontSize: 24, marginTop: 4 },
   sous: { color: "#cdd7f0", fontSize: 18 },
   input: { display: "block", padding: "12px", fontSize: 16, borderRadius: 8, border: "1px solid #2a3d6b", background: "#0b1631", color: "#fff", marginBottom: 12, width: 220 },
   btn: { padding: "14px 28px", background: "#ffed00", color: "#0d1b3e", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: "pointer" },
