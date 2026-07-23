@@ -75,7 +75,8 @@ export default function Home() {
         <a href="/resultat" style={S.lien}>✅ Saisir un résultat</a>
         <a href="/ajout-match" style={S.lien}>➕ Ajouter un match</a>
        <a href="/joueurs" style={S.lien}>👥 Joueurs</a>
-        <a href="/effectif" style={S.lien}>⚽ Effectif</a>
+       <a href="/effectif" style={S.lien}>⚽ Effectif</a>
+        <a href="/reglement" style={S.lien}>📖 Règlement</a>
       </div>
       {matchs.length === 0 && <p style={{ color: "#9fb0d8" }}>Aucun match pour l'instant.</p>}
       {matchs.map((m) => (
