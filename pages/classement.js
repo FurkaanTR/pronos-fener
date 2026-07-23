@@ -78,7 +78,7 @@ export default function Classement() {
 const S = {
   page: { fontFamily: "sans-serif", padding: 24, background: "#0d1b3e", color: "#eef2ff", minHeight: "100vh" },
   titre: { color: "#ffed00", fontStyle: "italic", letterSpacing: "0.1em" },
-  lien: { color: "#9fb0d8", display: "inline-block", marginBottom: 16 },
+  lien: { display: "inline-block", padding: "10px 16px", background: "#182a52", border: "1px solid #2a3d6b", borderRadius: 10, color: "#ffed00", textDecoration: "none", fontWeight: 600, fontSize: 14, marginBottom: 16 },
   ligne: { display: "flex", alignItems: "center", gap: 14, background: "#182a52", border: "1px solid #263a6a", borderRadius: 12, padding: "14px 18px", marginTop: 10 },
   leader: { border: "2px solid #ffed00", background: "#1c2f5c" },
   rang: { color: "#7b8cba", fontWeight: 700, width: 20 },
