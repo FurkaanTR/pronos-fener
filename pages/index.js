@@ -53,7 +53,7 @@ export default function Home() {
         <p style={S.sous}>Qui es-tu ?</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {joueurs.map((j) => (
-            <button key={j.id} style={S.btn} onClick={() => setMoi(j)}>{j.prenom}</button>
+           <button key={j.id} style={S.btn} onClick={() => { setMoi(j); sessionStorage.setItem("moi", JSON.stringify(j)); }}>{j.prenom}</button>
           ))}
         </div>
       </div>
@@ -64,7 +64,7 @@ export default function Home() {
     <div style={S.page}>
       <h1 style={S.titre}>PRONOS FENER</h1>
       <p style={S.sous}>
-        Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => setMoi(null)}>(changer)</button>
+        Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => { setMoi(null); sessionStorage.removeItem("moi"); }}>(changer)</button>
       </p>
 <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
         <a href="/classement" style={S.lien}>🏆 Classement</a>
