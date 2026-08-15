@@ -3,26 +3,25 @@ import { supabase } from "../lib/supabaseClient";
 
 export default function Home() {
   const [entre, setEntre] = useState(false);
-  useEffect(() => { if (sessionStorage.getItem("entre") === "1") setEntre(true); }, []);
   const [code, setCode] = useState("");
   const [msgErreur, setMsgErreur] = useState(null);
   const [joueurs, setJoueurs] = useState([]);
   const [moi, setMoi] = useState(null);
+  const [effectif, setEffectif] = useState([]);
+  const [matchs, setMatchs] = useState([]);
+
+  useEffect(() => { if (sessionStorage.getItem("entre") === "1") setEntre(true); }, []);
   useEffect(() => {
     const sauv = sessionStorage.getItem("moi");
     if (sauv) setMoi(JSON.parse(sauv));
   }, []);
-  const [effectif, setEffectif] = useState([]);
-  const [matchs, setMatchs] = useState([]);
 
   useEffect(() => {
     if (!entre) return;
     supabase.from("joueurs").select("id, prenom").then(({ data }) => setJoueurs(data || []));
     supabase.from("effectif").select("nom, poste").order("poste").then(({ data }) => setEffectif(data || []));
-   supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
+    supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
   }, [entre]);
-
-  const verifier = async () => {
 
   const verifier = async () => {
     setMsgErreur(null);
@@ -38,8 +37,8 @@ export default function Home() {
   if (!entre) {
     return (
       <div style={S.page}>
-      <h1 style={S.titre}>DEVINE TON SCORE</h1>
-       <p style={S.marque}>FENER1907</p>
+        <h1 style={S.titre}>DEVINE TON SCORE</h1>
+        <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Mot de passe</p>
         <input type="password" value={code} onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && verifier()} style={S.input} autoFocus />
@@ -53,45 +52,40 @@ export default function Home() {
     return (
       <div style={S.page}>
         <h1 style={S.titre}>DEVINE TON SCORE</h1>
-       <p style={S.marque}>FENER1907</p>
+        <p style={S.marque}>FENER1907</p>
         <p style={S.sous}>Qui es-tu ?</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {joueurs.map((j) => (
-           <button key={j.id} style={S.btn} onClick={() => { setMoi(j); sessionStorage.setItem("moi", JSON.stringify(j)); }}>{j.prenom}</button>
+            <button key={j.id} style={S.btn} onClick={() => { setMoi(j); sessionStorage.setItem("moi", JSON.stringify(j)); }}>{j.prenom}</button>
           ))}
         </div>
       </div>
     );
   }
 
+  const limite = Date.now() - 24 * 60 * 60 * 1000;
+  const aVenir = matchs.filter((m) => !m.coup_denvoi || new Date(m.coup_denvoi).getTime() > limite);
+
   return (
     <div style={S.page}>
-<h1 style={S.titre}>DEVINE TON SCORE</h1>
-     <p style={S.marque}>FENER1907</p>
+      <h1 style={S.titre}>DEVINE TON SCORE</h1>
+      <p style={S.marque}>FENER1907</p>
       <p style={S.sous}>
         Salut {moi.prenom} 👋 <button style={S.lien} onClick={() => { setMoi(null); sessionStorage.removeItem("moi"); }}>(changer)</button>
       </p>
-<div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
         <a href="/classement" style={S.lien}>🏆 Classement</a>
         <a href="/saison" style={S.lien}>📅 Pronos de saison</a>
         <a href="/resultat" style={S.lien}>✅ Saisir un résultat</a>
         <a href="/ajout-match" style={S.lien}>➕ Ajouter un match</a>
-       <a href="/joueurs" style={S.lien}>👥 Joueurs</a>
-       <a href="/effectif" style={S.lien}>⚽ Effectif</a>
-  <a href="/reglement" style={S.lien}>📖 Règlement</a>
+        <a href="/joueurs" style={S.lien}>👥 Joueurs</a>
+        <a href="/effectif" style={S.lien}>⚽ Effectif</a>
+        <a href="/reglement" style={S.lien}>📖 Règlement</a>
         <a href="/passes" style={S.lien}>📜 Matchs passés</a>
       </div>
-      {(() => {
-        const limite = Date.now() - 24 * 60 * 60 * 1000; // il y a 24h
-        const aVenir = matchs.filter(
-          (m) => !m.coup_denvoi || new Date(m.coup_denvoi).getTime() > limite
-        );
-        if (aVenir.length === 0)
-          return <p style={{ color: "#9fb0d8" }}>Aucun match à venir. Va voir les matchs passés 👇</p>;
-        return aVenir.map((m) => (
-          <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />
-        ));
-      })()}
+      {aVenir.length === 0
+        ? <p style={{ color: "#9fb0d8" }}>Aucun match à venir. Va voir les matchs passés 👆</p>
+        : aVenir.map((m) => <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />)}
     </div>
   );
 }
@@ -133,7 +127,7 @@ function MatchCard({ match, moi, effectif }) {
 
   return (
     <div style={S.carte}>
-     <div style={S.matchTitre}>
+      <div style={S.matchTitre}>
         <span style={fenerDom ? S.fener : undefined}>{match.domicile}</span>
         <span style={S.vs}> vs </span>
         <span style={!fenerDom ? S.fener : undefined}>{match.exterieur}</span>
@@ -142,8 +136,7 @@ function MatchCard({ match, moi, effectif }) {
       {match.coup_denvoi && (
         <div style={S.dateMatch}>
           {new Date(match.coup_denvoi).toLocaleString("fr-FR", {
-            weekday: "long", day: "numeric", month: "long",
-            hour: "2-digit", minute: "2-digit",
+            weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
           })}
         </div>
       )}
@@ -170,17 +163,17 @@ function MatchCard({ match, moi, effectif }) {
 
 const S = {
   page: { fontFamily: "sans-serif", padding: 24, background: "#0d1b3e", color: "#eef2ff", minHeight: "100vh" },
- titre: { color: "#ffed00", fontStyle: "italic", letterSpacing: "0.1em", textAlign: "center", marginBottom: 0 },
- marque: { color: "#ffed00", textAlign: "center", fontWeight: 800, letterSpacing: "0.2em", fontSize: 24, marginTop: 4 },
+  titre: { color: "#ffed00", fontStyle: "italic", letterSpacing: "0.1em", textAlign: "center", marginBottom: 0 },
+  marque: { color: "#ffed00", textAlign: "center", fontWeight: 800, letterSpacing: "0.2em", fontSize: 24, marginTop: 4 },
   sous: { color: "#cdd7f0", fontSize: 18 },
   input: { display: "block", padding: "12px", fontSize: 16, borderRadius: 8, border: "1px solid #2a3d6b", background: "#0b1631", color: "#fff", marginBottom: 12, width: 220 },
   btn: { padding: "14px 28px", background: "#ffed00", color: "#0d1b3e", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: "pointer" },
   btnValider: { marginTop: 10, padding: "12px 20px", background: "#1f7a4d", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" },
- lien: { display: "inline-block", padding: "10px 16px", background: "#182a52", border: "1px solid #2a3d6b", borderRadius: 10, color: "#ffed00", textDecoration: "none", fontWeight: 600, fontSize: 14 },
+  lien: { display: "inline-block", padding: "10px 16px", background: "#182a52", border: "1px solid #2a3d6b", borderRadius: 10, color: "#ffed00", textDecoration: "none", fontWeight: 600, fontSize: 14 },
   err: { color: "#ff6b6b", marginTop: 12 },
   carte: { background: "#182a52", border: "1px solid #263a6a", borderRadius: 16, padding: 18, marginTop: 16 },
   matchTitre: { fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" },
-  dateMatch: { color: "#9fb0d8", fontSize: 13, marginBottom: 12, marginTop: -6 },
+  dateMatch: { color: "#9fb0d8", fontSize: 13, marginBottom: 12, marginTop: -6, textTransform: "capitalize" },
   fener: { color: "#ffed00" },
   vs: { color: "#7b8cba", fontWeight: 400 },
   compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
