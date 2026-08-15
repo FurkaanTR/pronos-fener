@@ -96,6 +96,112 @@ function MatchCard({ match, moi, effectif }) {
   const [ext, setExt] = useState("");
   const [buteurs, setButeurs] = useState([]);
   const [statut, setStatut] = useState(null);
+  const [tousPronos, setTousPronos] = useState([]);
+
+  const commence = match.coup_denvoi && new Date(match.coup_denvoi).getTime() <= Date.now();
+
+  useEffect(() => {
+    if (commence) {
+      // Match commencé : on charge les pronos de tout le monde
+      (async () => {
+        const [{ data: pr }, { data: js }] = await Promise.all([
+          supabase.from("pronos_match").select("*").eq("match_id", match.id),
+          supabase.from("joueurs").select("*"),
+        ]);
+        const parId = {};
+        (js || []).forEach((j) => (parId[j.id] = j.prenom));
+        setTousPronos((pr || []).map((p) => ({
+          prenom: parId[p.joueur_id] || "?",
+          score: `${p.score_domicile} – ${p.score_exterieur}`,
+          buteurs: p.buteurs || [],
+        })));
+      })();
+    } else {
+      // Pas commencé : on charge juste mon prono
+      supabase.from("pronos_match").select("*")
+        .eq("joueur_id", moi.id).eq("match_id", match.id).maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setDom(String(data.score_domicile));
+            setExt(String(data.score_exterieur));
+            setButeurs(data.buteurs || []);
+            setStatut("Prono déjà enregistré ✔");
+          }
+        });
+    }
+  }, []);
+
+  const butsFener = parseInt(fenerDom ? dom : ext, 10) || 0;
+  const setBut = (i, val) => setButeurs((b) => { const c = [...b]; c[i] = val; return c; });
+
+  const enregistrer = async () => {
+    setStatut("Enregistrement…");
+    const { error } = await supabase.from("pronos_match").upsert({
+      joueur_id: moi.id,
+      match_id: match.id,
+      score_domicile: parseInt(dom, 10),
+      score_exterieur: parseInt(ext, 10),
+      buteurs: buteurs.slice(0, butsFener).filter(Boolean),
+    }, { onConflict: "joueur_id,match_id" });
+    setStatut(error ? "Erreur : " + error.message : "Prono enregistré ✔");
+  };
+
+  return (
+    <div style={S.carte}>
+      <div style={S.matchTitre}>
+        <span style={fenerDom ? S.fener : undefined}>{match.domicile}</span>
+        <span style={S.vs}> vs </span>
+        <span style={!fenerDom ? S.fener : undefined}>{match.exterieur}</span>
+        <span style={S.compet}>{match.competition}</span>
+      </div>
+      {match.coup_denvoi && (
+        <div style={S.dateMatch}>
+          {new Date(match.coup_denvoi).toLocaleString("fr-FR", {
+            weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+          })}
+        </div>
+      )}
+
+      {commence ? (
+        <div>
+          <div style={{ color: "#ffb84d", fontWeight: 700, marginBottom: 8 }}>🔒 Pronos fermés — voici ceux de chacun :</div>
+          {tousPronos.length === 0 && <p style={{ color: "#9fb0d8" }}>Personne n'avait pronostiqué.</p>}
+          {tousPronos.map((p, i) => (
+            <div key={i} style={S.pronoAutre}>
+              <span style={S.fener}>{p.prenom}</span> — {p.score}
+              {p.buteurs.length > 0 && <span style={{ color: "#9fb0d8" }}> · {p.buteurs.join(", ")}</span>}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <input style={S.mini} inputMode="numeric" placeholder={match.domicile.slice(0,3)}
+              value={dom} onChange={(e) => setDom(e.target.value.replace(/\D/g, ""))} />
+            <span style={S.vs}>–</span>
+            <input style={S.mini} inputMode="numeric" placeholder={match.exterieur.slice(0,3)}
+              value={ext} onChange={(e) => setExt(e.target.value.replace(/\D/g, ""))} />
+          </div>
+          {Array.from({ length: butsFener }).map((_, i) => (
+            <select key={i} style={S.select} value={buteurs[i] || ""} onChange={(e) => setBut(i, e.target.value)}>
+              <option value="">Buteur {i + 1}…</option>
+              {effectif.map((p) => (
+                <option key={p.nom} value={p.nom}>{p.nom} ({p.poste[0]})</option>
+              ))}
+            </select>
+          ))}
+          <button style={S.btnValider} onClick={enregistrer}>Enregistrer mon prono</button>
+          {statut && <p style={{ color: "#9fb0d8", marginTop: 8 }}>{statut}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+  const fenerDom = match.domicile === "Fenerbahçe";
+  const [dom, setDom] = useState("");
+  const [ext, setExt] = useState("");
+  const [buteurs, setButeurs] = useState([]);
+  const [statut, setStatut] = useState(null);
 
   useEffect(() => {
     supabase.from("pronos_match").select("*")
@@ -178,5 +284,6 @@ const S = {
   vs: { color: "#7b8cba", fontWeight: 400 },
   compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
   mini: { width: 52, padding: "8px 6px", textAlign: "center", background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 16 },
-  select: { width: "100%", padding: "8px", marginBottom: 6, background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 14 },
+select: { width: "100%", padding: "8px", marginBottom: 6, background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 14 },
+  pronoAutre: { padding: "8px 0", borderBottom: "1px solid #223357", fontSize: 14 },
 };
