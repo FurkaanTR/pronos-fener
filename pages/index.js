@@ -75,7 +75,8 @@ export default function Home() {
         <a href="/ajout-match" style={S.lien}>➕ Ajouter un match</a>
        <a href="/joueurs" style={S.lien}>👥 Joueurs</a>
        <a href="/effectif" style={S.lien}>⚽ Effectif</a>
-        <a href="/reglement" style={S.lien}>📖 Règlement</a>
+  <a href="/reglement" style={S.lien}>📖 Règlement</a>
+        <a href="/passes" style={S.lien}>📜 Matchs passés</a>
       </div>
       {(() => {
         const limite = Date.now() - 24 * 60 * 60 * 1000; // il y a 24h
