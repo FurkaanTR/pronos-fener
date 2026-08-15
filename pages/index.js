@@ -19,7 +19,10 @@ export default function Home() {
     if (!entre) return;
     supabase.from("joueurs").select("id, prenom").then(({ data }) => setJoueurs(data || []));
     supabase.from("effectif").select("nom, poste").order("poste").then(({ data }) => setEffectif(data || []));
-    supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
+   supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
+  }, [entre]);
+
+  const verifier = async () => {
 
   const verifier = async () => {
     setMsgErreur(null);
