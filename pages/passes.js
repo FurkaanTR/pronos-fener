@@ -23,7 +23,8 @@ export default function Passes() {
         const fenerDom = m.domicile === "Fenerbahçe";
         const aScore = m.score_domicile != null && m.score_exterieur != null;
         return (
-          <div key={m.id} style={S.carte}>
+         <a key={m.id} href={`/match/${m.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <div style={S.carte}>
             <div style={S.mt}>
               <span style={fenerDom ? S.f : undefined}>{m.domicile}</span>
               {aScore
@@ -43,7 +44,9 @@ export default function Passes() {
               <div style={S.buteurs}>⚽ {m.buteurs_fener.join(", ")}</div>
             )}
             {!aScore && <div style={S.enAttente}>Résultat pas encore saisi</div>}
+            <div style={{ color: "#7b8cba", fontSize: 12, marginTop: 8 }}>Voir qui a mis quoi →</div>
           </div>
+          </a>
         );
       })}
     </div>
