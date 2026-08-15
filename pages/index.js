@@ -20,7 +20,6 @@ export default function Home() {
     supabase.from("joueurs").select("id, prenom").then(({ data }) => setJoueurs(data || []));
     supabase.from("effectif").select("nom, poste").order("poste").then(({ data }) => setEffectif(data || []));
     supabase.from("matchs").select("*").order("coup_denvoi").then(({ data }) => setMatchs(data || []));
-  }, [entre]);
 
   const verifier = async () => {
     setMsgErreur(null);
@@ -78,10 +77,17 @@ export default function Home() {
        <a href="/effectif" style={S.lien}>⚽ Effectif</a>
         <a href="/reglement" style={S.lien}>📖 Règlement</a>
       </div>
-      {matchs.length === 0 && <p style={{ color: "#9fb0d8" }}>Aucun match pour l'instant.</p>}
-      {matchs.map((m) => (
-        <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />
-      ))}
+      {(() => {
+        const limite = Date.now() - 24 * 60 * 60 * 1000; // il y a 24h
+        const aVenir = matchs.filter(
+          (m) => !m.coup_denvoi || new Date(m.coup_denvoi).getTime() > limite
+        );
+        if (aVenir.length === 0)
+          return <p style={{ color: "#9fb0d8" }}>Aucun match à venir. Va voir les matchs passés 👇</p>;
+        return aVenir.map((m) => (
+          <MatchCard key={m.id} match={m} moi={moi} effectif={effectif} />
+        ));
+      })()}
     </div>
   );
 }
