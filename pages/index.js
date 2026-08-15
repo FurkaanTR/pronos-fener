@@ -102,7 +102,6 @@ function MatchCard({ match, moi, effectif }) {
 
   useEffect(() => {
     if (commence) {
-      // Match commencé : on charge les pronos de tout le monde
       (async () => {
         const [{ data: pr }, { data: js }] = await Promise.all([
           supabase.from("pronos_match").select("*").eq("match_id", match.id),
@@ -117,7 +116,6 @@ function MatchCard({ match, moi, effectif }) {
         })));
       })();
     } else {
-      // Pas commencé : on charge juste mon prono
       supabase.from("pronos_match").select("*")
         .eq("joueur_id", moi.id).eq("match_id", match.id).maybeSingle()
         .then(({ data }) => {
@@ -161,7 +159,6 @@ function MatchCard({ match, moi, effectif }) {
           })}
         </div>
       )}
-
       {commence ? (
         <div>
           <div style={{ color: "#ffb84d", fontWeight: 700, marginBottom: 8 }}>🔒 Pronos fermés — voici ceux de chacun :</div>
@@ -194,75 +191,6 @@ function MatchCard({ match, moi, effectif }) {
           {statut && <p style={{ color: "#9fb0d8", marginTop: 8 }}>{statut}</p>}
         </div>
       )}
-    </div>
-  );
-}
-  const fenerDom = match.domicile === "Fenerbahçe";
-  const [dom, setDom] = useState("");
-  const [ext, setExt] = useState("");
-  const [buteurs, setButeurs] = useState([]);
-  const [statut, setStatut] = useState(null);
-
-  useEffect(() => {
-    supabase.from("pronos_match").select("*")
-      .eq("joueur_id", moi.id).eq("match_id", match.id).maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          setDom(String(data.score_domicile));
-          setExt(String(data.score_exterieur));
-          setButeurs(data.buteurs || []);
-          setStatut("Prono déjà enregistré ✔");
-        }
-      });
-  }, []);
-
-  const butsFener = parseInt(fenerDom ? dom : ext, 10) || 0;
-  const setBut = (i, val) => setButeurs((b) => { const c = [...b]; c[i] = val; return c; });
-
-  const enregistrer = async () => {
-    setStatut("Enregistrement…");
-    const { error } = await supabase.from("pronos_match").upsert({
-      joueur_id: moi.id,
-      match_id: match.id,
-      score_domicile: parseInt(dom, 10),
-      score_exterieur: parseInt(ext, 10),
-      buteurs: buteurs.slice(0, butsFener).filter(Boolean),
-    }, { onConflict: "joueur_id,match_id" });
-    setStatut(error ? "Erreur : " + error.message : "Prono enregistré ✔");
-  };
-
-  return (
-    <div style={S.carte}>
-      <div style={S.matchTitre}>
-        <span style={fenerDom ? S.fener : undefined}>{match.domicile}</span>
-        <span style={S.vs}> vs </span>
-        <span style={!fenerDom ? S.fener : undefined}>{match.exterieur}</span>
-        <span style={S.compet}>{match.competition}</span>
-      </div>
-      {match.coup_denvoi && (
-        <div style={S.dateMatch}>
-          {new Date(match.coup_denvoi).toLocaleString("fr-FR", {
-            weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
-          })}
-        </div>
-      )}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <input style={S.mini} inputMode="numeric" placeholder={match.domicile.slice(0,3)}
-          value={dom} onChange={(e) => setDom(e.target.value.replace(/\D/g, ""))} />
-        <span style={S.vs}>–</span>
-        <input style={S.mini} inputMode="numeric" placeholder={match.exterieur.slice(0,3)}
-          value={ext} onChange={(e) => setExt(e.target.value.replace(/\D/g, ""))} />
-      </div>
-      {Array.from({ length: butsFener }).map((_, i) => (
-        <select key={i} style={S.select} value={buteurs[i] || ""} onChange={(e) => setBut(i, e.target.value)}>
-          <option value="">Buteur {i + 1}…</option>
-          {effectif.map((p) => (
-            <option key={p.nom} value={p.nom}>{p.nom} ({p.poste[0]})</option>
-          ))}
-        </select>
-      ))}
-      <button style={S.btnValider} onClick={enregistrer}>Enregistrer mon prono</button>
-      {statut && <p style={{ color: "#9fb0d8", marginTop: 8 }}>{statut}</p>}
     </div>
   );
 }
