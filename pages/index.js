@@ -284,6 +284,6 @@ const S = {
   vs: { color: "#7b8cba", fontWeight: 400 },
   compet: { marginLeft: "auto", fontSize: 12, color: "#0d1b3e", background: "#ffed00", padding: "3px 8px", borderRadius: 6, fontWeight: 700 },
   mini: { width: 52, padding: "8px 6px", textAlign: "center", background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 16 },
-select: { width: "100%", padding: "8px", marginBottom: 6, background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 14 },
+  select: { width: "100%", padding: "8px", marginBottom: 6, background: "#0b1631", border: "1px solid #2a3d6b", borderRadius: 8, color: "#fff", fontSize: 14 },
   pronoAutre: { padding: "8px 0", borderBottom: "1px solid #223357", fontSize: 14 },
 };
